@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, session, request, g
 from postr import app, db
-from .forms import RegistrationForm
+from .forms import RegistrationForm, LoginForm
 from .models import User
 
 # Define home page view
@@ -24,11 +24,23 @@ def register():
 # Define login page view
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-	return 'Login page'
+	form = LoginForm(request.form)
+
+	if request.method == 'POST':
+		if form.validate() == False:
+			flash('Invalid credentials')
+			return redirect(url_for('login'))
+		else:
+			session['logged_in'] = True
+			return redirect(url_for('home'))
+
+	return render_template('login.html', form=form)
 
 # Define logout page view
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
+	session['logged_in'] = False
+	session.clear()
 	return 'Logout page'
 
 # Define User profile page view
